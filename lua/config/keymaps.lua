@@ -3,7 +3,7 @@
 -- Add any additional keymaps here
 
 -- funni visual selection go brrrr
-local function comment() -- block commenting code
+local function comment() -- block commenting code -- language-specific
     local s_start = vim.fn.getpos("v")[2]
     local s_end = vim.fn.getpos(".")[2]
     local js = math.abs(s_end - s_start)
@@ -35,7 +35,7 @@ local function uncomment() -- uncomment
     return "<Esc>:'<<Enter>0<C-v>l" .. jstring .. ":s/##/<Enter>"
 end
 
-local function bracket(str) -- auto go in to parentheses
+local function bracket(str) -- auto go in to parentheses -- language-specific
     bracket_map = {
         [")"] = "(",
         ["]"] = "[",
@@ -72,7 +72,7 @@ local function get_line(num)
     return vim.api.nvim_buf_get_lines(0, num, num + 1, true)[1]
 end
 
-local function last_import(imports)
+local function last_import(imports) -- language-specific
     -- vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, true, true) .. "gg", "m", false)
     -- vim.api.nvim_input("<Esc>gg")
     -- i_feedkeys("<Esc>gg")
@@ -133,14 +133,14 @@ local function last_import(imports)
     return jstring
 end
 
-local function autoimport()
+local function autoimport() -- language-specific
     local status, msg = pcall(last_import, { "import" })
     
     if (not status)
     then
         if (msg:find("No imports found to navigate to", 1, true))
         then
-            return "_i<Enter><Up>"
+            return "_i<Enter><Enter><Up><Up>"
         else
             error(msg .. " in last_import({ \"import\" })")
         end
@@ -152,7 +152,7 @@ local function autoimport()
         else
             return importjval .. "$a<Enter>"
         end
-    end
+    end 
 end
 
 
@@ -164,8 +164,8 @@ vim.keymap.set("v", "x", "\"_x", {remap=false, desc="Delete"})
 vim.keymap.set("n", "<C-a>", "gg_vG$", {remap=true, desc="Select All"})
 vim.keymap.set("i", "<C-a>", "<Esc>gg_vG$", {remap=true, desc="Select All"})
 
-vim.keymap.set("n", leader_1 .. "l", "v0x", {remap=true, desc="Delete everything before cursor in line"})
-vim.keymap.set("i", leader_1 .. "l", "<Esc>v0xi", {remap=true, desc="Delete everything before cursor in line"})
+vim.keymap.set("n", leader_1 .. "l", "mq_d0`q:delm q<Enter>", {remap=true, desc="Unindent"})
+vim.keymap.set("i", leader_1 .. "l", "<Esc>mq_d0`q:delm q<Enter>a", {remap=true, desc="Unindent"})
 
 vim.keymap.set("n", leader_1 .. "x", "$a-<Esc>v0xa<Backspace><Esc>", {remap=true, desc="Delete Line"}) -- does some stuff with leaving the cursor in the right place which is why it's better than dd
 vim.keymap.set("i", leader_1 .. "x", "<Esc>$a-<Esc>v0xa<Backspace>", {remap=true, desc="Delete Line"})
@@ -176,14 +176,17 @@ vim.keymap.set("i", leader_1 .. "n", "<Esc>$a<Enter>", {remap=true, desc="Create
 vim.keymap.set("n", leader_1 .. "v", "$v_x", {remap=true, desc="Clear line"})
 vim.keymap.set("i", leader_1 .. "v", "<Esc>$v_xa", {remap=true, desc="Clear line"})
 
-vim.keymap.set("n", leader_1 .. "b", "$v_y$a<Enter><Esc>p$", {remap=true, desc="Copy and Paste Line"})
-vim.keymap.set("i", leader_1 .. "b", "<Esc>$v_y$a<Enter><Esc>p$a", {remap=true, desc="Copy and Paste Line"})
+vim.keymap.set("n", leader_1 .. "b", "$v0y$a<Enter><Esc>p$", {remap=true, desc="Copy and Paste Line"})
+vim.keymap.set("i", leader_1 .. "b", "<Esc>$v0y$a<Enter><Esc>p$a", {remap=true, desc="Copy and Paste Line"})
 
 vim.keymap.set("n", leader_1 .. "p", "p", {remap=true, desc="Paste"})
-vim.keymap.set("i", leader_1 .. "p", "<Esc>pa", {remap=true, desc="Paste"})
+vim.keymap.set("i", leader_1 .. "p", "-<Esc>xpa", {remap=true, desc="Paste"})
 
 vim.keymap.set("n", leader_1 .. "j", "j_\"qy$$v0xa<Backspace><Esc>\"qp", {remap=true, desc="Move next line to end of current line"})
 vim.keymap.set("i", leader_1 .. "j", "<Esc>j_\"qy$$v0xa<Backspace><Esc>\"qpa", {remap=true, desc="Move next line to end of current line"})
+
+vim.keymap.set("n", leader_1 .. "ya", "mq<C-a>y`q:delm q<Enter>", {remap=true, desc="Yank all"})
+vim.keymap.set("i", leader_1 .. "ya", "<Esc>mq<C-a>y`q:delm q<Enter>a", {remap=true, desc="Yank all"})
 
 vim.keymap.set("n", leader_1 .. "ii", function() return "gg" .. last_import({ "import" }) .. "$" end, {remap=true, desc="Go to last import", expr=true}) -- python funni go brrrr
 vim.keymap.set("i", leader_1 .. "ii", function() return "gg" .. last_import({ "import" }) .. "$a" end, {remap=true, desc="Go to last import", expr=true})
@@ -213,6 +216,7 @@ vim.keymap.set("n", "<Home>", "_", {remap=true, desc="Go home, after indents"})
 vim.keymap.set("i", "<Home>", "<Esc>_i", {remap=true, desc="Go home, after indents"})
 vim.keymap.set("v", "<Home>", "_", {remap=true, desc="Go home, after indents"})
 
+-- language-specific
 vim.keymap.set("n", "<F5>", ":w<Enter>:exec '!start cmd /C pythonp' shellescape(@%, 1)<Enter>", {remap=true, desc="Run Python"})
 vim.keymap.set("i", "<F5>", "<Esc>:w<Enter>:exec '!start cmd /C pythonp' shellescape(@%, 1)<Enter>a", {remap=true, desc="Run Python"})
 
