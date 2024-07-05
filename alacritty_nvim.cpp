@@ -1,3 +1,4 @@
+// batch equivalent:
 // %~dp0alacritty.exe --title nvim -e "nvim %*"
 #include <stdlib.h>
 #include <iostream>
