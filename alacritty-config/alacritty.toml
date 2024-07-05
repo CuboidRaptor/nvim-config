@@ -1,0 +1,8 @@
+[window]
+
+dimensions = {lines = 40, columns = 140}
+
+[font]
+
+normal = {family = "EnvyCodeR Nerd Font", style = "Regular"}
+size = 11.25
